@@ -1,0 +1,9 @@
+Django==4.2
+djangorestframework==3.14.0
+psycopg2-binary==2.9.9  # PostgreSQL driver
+pymongo==4.6.1  # MongoDB driver
+requests==2.31.0  # For making API calls
+gunicorn==23.0.0  # For deployment (optional)
+whitenoise==6.6.0  # Static file handling in production
+django-cors-headers==4.3.1  # Handle CORS for frontend requests
+django-environ==0.11.2  # Environment variable management
