@@ -7,3 +7,8 @@ gunicorn==23.0.0  # For deployment (optional)
 whitenoise==6.6.0  # Static file handling in production
 django-cors-headers==4.3.1  # Handle CORS for frontend requests
 django-environ==0.11.2  # Environment variable management
+djangorestframework-simplejwt
+numpy
+pandas
+faiss-cpu
+sentence_transformers
