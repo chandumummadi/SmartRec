@@ -1,2 +1,6 @@
 .DS_Store
 .idea/
+venv/
+Smartrec-Backend/Backend/smartrec/__pycache__/
+Smartrec-Backend/Backend/smartrecapp/__pycache__/
+Smartrec-Backend/Backend/news/__pycache__/

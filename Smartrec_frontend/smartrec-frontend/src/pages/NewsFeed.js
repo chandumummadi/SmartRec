@@ -1,7 +1,7 @@
 // src/pages/NewsFeed.jsx
 
 import React, { useState, useEffect } from 'react';
-import { Container, Grid, Box, Button, CircularProgress, Typography } from '@mui/material';
+import { Container, Grid, Box, Button, CircularProgress, Typography, Select, MenuItem, FormControl, InputLabel } from '@mui/material';
 import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../contexts/ToastContext';
 
@@ -14,7 +14,9 @@ const NewsFeed = () => {
     const [activeSection, setActiveSection] = useState('recommend'); // recommend, trending, filter
     const [selectedCategories, setSelectedCategories] = useState([]);
     const [newsArticles, setNewsArticles] = useState([]);
+    const [filteredArticles, setFilteredArticles] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [genuinenessFilter, setGenuinenessFilter] = useState('all'); // 'all', 'genuine', 'moderate', 'least'
 
     const handleSidebarClick = (section) => {
         setActiveSection(section);
@@ -100,6 +102,18 @@ const NewsFeed = () => {
         }
     };
 
+    const filterByGenuineness = (articles, filter) => {
+        switch (filter) {
+            case 'genuine':
+                return articles.filter(article => article.genuineness_score >= 70);
+            case 'moderate':
+                return articles.filter(article => article.genuineness_score >= 45 && article.genuineness_score < 70);
+            case 'least':
+                return articles.filter(article => article.genuineness_score < 45);
+            default:
+                return articles;
+        }
+    };
 
     useEffect(() => {
         if (activeSection === 'recommend') {
@@ -110,6 +124,9 @@ const NewsFeed = () => {
         // For filter, do nothing initially
     }, [activeSection]);
 
+    useEffect(() => {
+        setFilteredArticles(filterByGenuineness(newsArticles, genuinenessFilter));
+    }, [newsArticles, genuinenessFilter]);
 
     const userId = localStorage.getItem('id');
     const accessToken = localStorage.getItem('access'); // Adjust key based on your auth setup
@@ -179,6 +196,25 @@ const NewsFeed = () => {
 
             {/* Main Content */}
             <Box sx={{ flexGrow: 1, marginTop: '64px', marginLeft: '220px', padding: 3 }}>
+                {/* Genuineness Filter */}
+                <Box sx={{ display: 'flex', gap: 2, mb: 3 }}>
+                    <FormControl sx={{ minWidth: 200 }}>
+                        <InputLabel id="genuineness-filter-label">Filter by Genuineness</InputLabel>
+                        <Select
+                            labelId="genuineness-filter-label"
+                            id="genuineness-filter"
+                            value={genuinenessFilter}
+                            label="Filter by Genuineness"
+                            onChange={(e) => setGenuinenessFilter(e.target.value)}
+                        >
+                            <MenuItem value="all">All News</MenuItem>
+                            <MenuItem value="genuine">Genuine (70%+)</MenuItem>
+                            <MenuItem value="moderate">Moderate (45-70%)</MenuItem>
+                            <MenuItem value="least">Least Genuine (&lt;45%)</MenuItem>
+                        </Select>
+                    </FormControl>
+                </Box>
+
                 {/* Sub-Navbar for Filter */}
                 {activeSection === 'filter' && (
                     <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, mb: 4 }}>
@@ -202,10 +238,10 @@ const NewsFeed = () => {
                     <Box sx={{ display: 'flex', justifyContent: 'center', mt: 8 }}>
                         <CircularProgress />
                     </Box>
-                ) : newsArticles.length > 0 ? (
+                ) : filteredArticles.length > 0 ? (
                     <Grid container spacing={3}>
-                        {newsArticles.map((article) => (
-                            <Grid key={article.news_id} size={{ xs: 12, sm: 6, md: 4 }} display="flex" justifyContent="center">
+                        {filteredArticles.map((article) => (
+                            <Grid key={article.news_id} size={{ xs: 12, sm: 6, md: 3 }} display="flex" justifyContent="center">
                                 <Box
                                     sx={{
                                         maxWidth: 450,
@@ -242,7 +278,7 @@ const NewsFeed = () => {
                                         </Typography>
                                         {/* ⭐ Genuineness Score */}
                                         <Typography variant="caption" color="success.main" sx={{ mb: 1 }}>
-                                            Genuineness: {Math.floor(Math.random() * 30) + 70}% {/* Mock 70% to 100% */}
+                                            Genuineness: {article.genuineness_score?.toFixed(2)}%
                                         </Typography>
 
                                         {/* Read More */}

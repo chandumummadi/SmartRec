@@ -180,3 +180,6 @@ REST_FRAMEWORK = {
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ]
 }
+
+
+TICKETMASTER_API_KEY = 'rzjKcwMPVei76tiMc2RH6a5MHGXD4YEn'

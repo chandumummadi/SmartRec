@@ -122,8 +122,9 @@ def get_recommended_news(user_id, top_n=5):
                         'category': article.category,
                         'description': article.description,
                         'url': article.url,
-                        'image_url':article.image_url,
+                        'image_url': article.image_url,
                         'published_at': article.published_at,
+                        'genuineness_score': article.genuineness_score
                     })
                 except NewsArticle.DoesNotExist:
                     logger.error(f"Article with news_id {news_id} not found in the database.")

@@ -9,8 +9,9 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import Preferences from './pages/Preferences';
 import NewsPage from './pages/NewsPage'; // ➡️ new smart redirector
+import EventPage from './pages/EventPage'
 import TrendingNewsPage from './pages/TrendingNewsPage'; // ➡️ guest-only trending news
-// import TrendingEvents from './pages/TrendingEvents'; // ➡️ guest-only trending events (we will create this next)
+import TrendingEvents from './pages/TrendingEventsPage'; // ➡️ guest-only trending events (we will create this next)
 
 function App() {
     return (
@@ -24,9 +25,9 @@ function App() {
                     <Route path="newsfeed" element={<NewsFeed />} /> {/* Old Personalized */}
                     <Route path="trendingnewspage" element={<TrendingNewsPage />} /> {/* New Guest Trending */}
 
-                    {/*<Route path="events" element={<EventPage />} /> /!* Similar redirect logic - we'll create *!/*/}
-                    {/*<Route path="eventfeed" element={<EventFeed />} /> /!* Personalized Event feed *!/*/}
-                    {/*<Route path="trendingevents" element={<TrendingEvents />} /> /!* Guest Trending Events *!/*/}
+                    <Route path="events" element={<EventPage />} /> {/* Similar redirect logic - we'll create */}
+                    <Route path="eventfeed" element={<EventFeed />} /> {/* Personalized Event feed */}
+                    <Route path="trendingevents" element={<TrendingEvents />} /> {/* Guest Trending Events */}
 
                     {/* Other normal pages */}
                     <Route path="profile" element={<Profile />} />

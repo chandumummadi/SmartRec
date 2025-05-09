@@ -4,6 +4,7 @@ from django.conf import settings
 from django.db import IntegrityError
 from .models import NewsArticle
 import hashlib
+from .genuinenessScorer import calculate_genuineness_score
 
 
 # Set up a logger
@@ -71,6 +72,9 @@ def save_news_to_db(articles):
             logger.info(f"Duplicate article found. Skipping: {article['title']}")
             continue  # Skip inserting this article since it's a duplicate
 
+        # Calculate genuineness score
+        genuineness_score = calculate_genuineness_score(article['title'], article['description'])
+
         # Save the article to the database if it's not a duplicate
         try:
             NewsArticle.objects.create(
@@ -79,10 +83,11 @@ def save_news_to_db(articles):
                 category=article['category'],
                 description=article['description'],
                 url=article['url'],
-                image_url =article['urlToImage'],
+                image_url=article['urlToImage'],
                 published_at=article['publishedAt'],
+                genuineness_score=genuineness_score
             )
-            logger.info(f"Saved article: {article['title']}")
+            logger.info(f"Saved article: {article['title']} with genuineness score: {genuineness_score}")
 
         except IntegrityError as e:
             # If there's any error while saving, log it

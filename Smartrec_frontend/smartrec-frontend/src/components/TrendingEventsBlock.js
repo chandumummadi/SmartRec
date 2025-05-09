@@ -1,40 +1,84 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Grid, Box, Typography, Button } from '@mui/material';
 
 const TrendingEventsBlock = () => {
     const [events, setEvents] = useState([]);
-    const navigate = useNavigate();
 
     useEffect(() => {
-        fetch("http://localhost:8000/api/events/trending/")
-            .then(res => res.json())
-            .then(data => setEvents(data))
-            .catch(err => console.error("Error fetching trending events:", err));
+        fetch('http://localhost:8000/api/events/trending/?top_n=5')
+            .then((res) => res.json())
+            .then((data) => {
+                if (Array.isArray(data.trending_events)) {
+                    setEvents(data.trending_events.slice(0, 4));
+                } else {
+                    console.error('Unexpected data format:', data);
+                }
+            })
+            .catch((err) => console.error('Error fetching trending events:', err));
     }, []);
 
-    const handleViewMore = () => {
-        navigate("/events?mode=trending");
-    };
-
     return (
-        <div className="border rounded-lg shadow-md p-4 bg-white">
-            <h2 className="text-xl font-semibold mb-4">Trending Events</h2>
-            {events.length === 0 && <p>Loading...</p>}
-            <ul className="space-y-2">
-                {events.map((event, index) => (
-                    <li key={index} className="text-sm">
-                        <div className="text-gray-800 font-medium">{event.event_name}</div>
-                        <div className="text-xs text-gray-500">{event.date} | {event.location}</div>
-                    </li>
-                ))}
-            </ul>
-            <button
-                onClick={handleViewMore}
-                className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-            >
-                View More
-            </button>
-        </div>
+        <Grid container spacing={3}>
+            {events.map((event) => (
+                <Grid item key={event.event_id} size={{ xs: 12, sm: 6 }}>
+                    <Box
+                        sx={{
+                            maxWidth: 360,
+                            width: '100%',
+                            height: 300, // ✅ consistent fixed height
+                            display: 'flex',
+                            flexDirection: 'column',
+                            justifyContent: 'space-between',
+                            borderRadius: 2,
+                            overflow: 'hidden',
+                            boxShadow: 2,
+                            backgroundColor: '#fff',
+                            transition: 'transform 0.3s ease-in-out',
+                            '&:hover': { transform: 'scale(1.02)' },
+                        }}
+                    >
+                        {/* Image */}
+                        <Box sx={{ width: '100%', height: 160, overflow: 'hidden' }}>
+                            <img
+                                src={event.image_url}
+                                alt={event.title}
+                                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                            />
+                        </Box>
+
+                        {/* Content */}
+                        <Box sx={{ p: 2, display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
+                            <Typography
+                                variant="subtitle1"
+                                fontWeight="bold"
+                                gutterBottom
+                                sx={{
+                                    whiteSpace: 'nowrap',
+                                    overflow: 'hidden',
+                                    textOverflow: 'ellipsis',
+                                }}
+                            >
+                                {event.title}
+                            </Typography>
+
+                            <Typography variant="body2" color="textSecondary" sx={{ mb: 1 }}>
+                                {new Date(event.date).toLocaleString()} — {event.location}
+                            </Typography>
+
+                            <Button
+                                href={event.url}
+                                target="_blank"
+                                variant="outlined"
+                                size="small"
+                                sx={{ mt: 'auto' }}
+                            >
+                                View Event
+                            </Button>
+                        </Box>
+                    </Box>
+                </Grid>
+            ))}
+        </Grid>
     );
 };
 

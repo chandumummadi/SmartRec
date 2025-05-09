@@ -4,10 +4,11 @@ from .recommendationSystem import get_recommended_news
 from .dataConvertor import process_and_store_embeddings
 from .models import NewsArticle
 from django.views.decorators.csrf import csrf_exempt
+from .genuinenessScorer import calculate_genuineness_score
 import logging
 import json
 
-from .newsHandler import fetch_all_news_for_categories, save_news_to_db
+from .newsHandler import fetch_all_news_for_categories, save_news_to_db, generate_news_id
 from .userPreferencesHandler import update_user_preferences_impl, get_user_preferences
 
 logger = logging.getLogger(__name__)
@@ -32,7 +33,7 @@ def get_categories_articles(request):
             articles_data = {}
             for category in categories:
                 articles = NewsArticle.objects.filter(category=category).values(
-                    'news_id', 'title', 'category', 'description', 'url', 'published_at', 'image_url'
+                    'news_id', 'title', 'category', 'description', 'url', 'published_at', 'image_url', 'genuineness_score'
                 )
 
                 # If no articles found for the category
@@ -82,14 +83,30 @@ def populate_news_data(request):
 
             # Step 2: Save the fetched articles into the database
             logger.info(f"Saving {len(articles)} articles to the database.")
-            save_news_to_db(articles)
+            for article in articles:
+                # Generate a unique news_id for the article
+                news_id = generate_news_id(article)
 
-            # Step 3: Process the articles to generate embeddings and store them in FAISS
-            logger.info("Generating embeddings and storing them in FAISS.")
-            process_and_store_embeddings()
+                title = article.get("title")
+                description = article.get("description")
+                genuineness_score = calculate_genuineness_score(title, description)  # Scoring using centralized models
 
-            # Return success response
-            return JsonResponse({'message': 'News data populated successfully, FAISS index built.'}, status=200)
+                # Save article with genuineness score
+                NewsArticle.objects.update_or_create(
+                    news_id=news_id,
+                    defaults={
+                        "title": title,
+                        "category": article.get("category"),
+                        "description": description,
+                        "url": article.get("url"),
+                        "image_url": article.get("urlToImage"),  # Changed from image_url to urlToImage to match NewsAPI response
+                        "published_at": article.get("publishedAt"),  # Changed from published_at to publishedAt to match NewsAPI response
+                        "genuineness_score": genuineness_score
+                    }
+                )
+
+            logger.info("News data populated successfully.")
+            return JsonResponse({'message': 'News data populated successfully with genuineness scores.'}, status=200)
 
         except Exception as e:
             logger.error(f"Error during population process: {str(e)}")
@@ -230,8 +247,9 @@ def get_trending_news(request):
                     "category": article.category,
                     "description": article.description,
                     "url": article.url,
-                    "image_url":article.image_url,
-                    "published_at": article.published_at
+                    "image_url": article.image_url,
+                    "published_at": article.published_at,
+                    "genuineness_score": article.genuineness_score
                 }
                 for article in trending_articles
             ]

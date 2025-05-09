@@ -10,6 +10,7 @@ class NewsArticle(models.Model):
     image_url = models.TextField(null=True, blank = True)
     published_at = models.DateTimeField()
     timestamp = models.DateTimeField(auto_now_add=True)
+    genuineness_score = models.FloatField(null=True, blank=True)  # Score from 0-100
 
     def __str__(self):
         return self.title

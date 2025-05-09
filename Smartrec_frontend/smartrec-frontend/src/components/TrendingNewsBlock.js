@@ -1,52 +1,91 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Grid, Box, Typography, Button } from '@mui/material';
 
 const TrendingNewsBlock = () => {
-    const [news, setNews] = useState([]);
-    const navigate = useNavigate();
+    const [newsArticles, setNewsArticles] = useState([]);
 
     useEffect(() => {
-        fetch("http://localhost:8000/api/news/trending/")
-            .then(res => res.json())
-            .then(data => {
-                if (Array.isArray(data)) {
-                    setNews(data);  // if backend sends a raw list
-                } else if (Array.isArray(data.results)) {
-                    setNews(data.results); // if backend wraps inside `results`
-                } else if (Array.isArray(data.news)) {
-                    setNews(data.news);  // if wrapped inside `news`
+        fetch('http://localhost:8000/api/news/trending')  // backend returns all, we slice
+            .then((res) => res.json())
+            .then((data) => {
+                if (Array.isArray(data.trending_news)) {
+                    setNewsArticles(data.trending_news.slice(0, 4));
                 } else {
-                    console.error("Unexpected response format", data);
+                    console.error('Unexpected data format:', data);
                 }
             })
-            .catch(err => console.error("Error fetching trending news:", err));
+            .catch((err) => console.error('Error fetching trending news:', err));
     }, []);
 
-
-    const handleViewMore = () => {
-        navigate("/news?mode=trending");
-    };
-
     return (
-        <div className="border rounded-lg shadow-md p-4 bg-white">
-            <h2 className="text-xl font-semibold mb-4">Trending News</h2>
-            {news.length === 0 && <p>Loading...</p>}
-            <ul className="space-y-2">
-                {news.map((article, index) => (
-                    <li key={index} className="text-sm">
-                        <a href={article.url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
-                            {article.title}
-                        </a>
-                    </li>
-                ))}
-            </ul>
-            <button
-                onClick={handleViewMore}
-                className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-            >
-                View More
-            </button>
-        </div>
+        <Grid container spacing={3}>
+            {newsArticles.map((article) => (
+                <Grid item key={article.news_id} size={{ xs: 12, sm: 6 }}>
+                    <Box
+                        sx={{
+                            maxWidth: 360,
+                            width: '100%',
+                            height: 300, // ✅ consistent fixed height
+                            display: 'flex',
+                            flexDirection: 'column',
+                            justifyContent: 'space-between',
+                            borderRadius: 2,
+                            overflow: 'hidden',
+                            boxShadow: 2,
+                            backgroundColor: '#fff',
+                            transition: 'transform 0.3s ease-in-out',
+                            '&:hover': { transform: 'scale(1.02)' },
+                        }}
+                    >
+
+                    {/* Bigger image */}
+                        <Box sx={{ width: '100%', height: 160, overflow: 'hidden' }}>
+                            <img
+                                src={article.image_url}
+                                alt={article.title}
+                                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                            />
+                        </Box>
+
+                        {/* Content + pinned button */}
+                        <Box
+                            sx={{
+                                p: 2,
+                                display: 'flex',
+                                flexDirection: 'column',
+                                flexGrow: 1,
+                            }}
+                        >
+                            {/* One-line, ellipsized title */}
+                            <Typography
+                                variant="subtitle1"
+                                fontWeight="bold"
+                                gutterBottom
+                                sx={{
+                                    display: '-webkit-box',
+                                    WebkitLineClamp: 2, // allow 2 lines
+                                    WebkitBoxOrient: 'vertical',
+                                    overflow: 'hidden',
+                                }}
+                            >
+                                {article.title}
+                            </Typography>
+
+                            {/* Sticks to bottom */}
+                            <Button
+                                href={article.url}
+                                target="_blank"
+                                variant="outlined"
+                                size="small"
+                                sx={{ mt: 'auto' }}
+                            >
+                                Read More
+                            </Button>
+                        </Box>
+                    </Box>
+                </Grid>
+            ))}
+        </Grid>
     );
 };
 
