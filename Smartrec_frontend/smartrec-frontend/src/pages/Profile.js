@@ -1,7 +1,5 @@
-// src/pages/Profile.jsx
-
 import React, { useEffect, useState } from 'react';
-import { Container, Typography, Box, CircularProgress, Button } from '@mui/material';
+import { Container, Typography, Box, CircularProgress, Button, Stack } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../contexts/ToastContext';
@@ -31,7 +29,6 @@ const Profile = () => {
                     },
                 });
 
-                // If access token expired (401 error), try refreshing it
                 if (response.status === 401) {
                     const refreshed = await refreshAccessToken();
                     if (refreshed) {
@@ -80,8 +77,6 @@ const Profile = () => {
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                     <Typography variant="h6">Full Name: {profile.full_name}</Typography>
                     <Typography variant="h6">Email: {profile.email}</Typography>
-
-                    {/* If you have more fields, add them here */}
                 </Box>
             ) : (
                 <Typography color="error" align="center">
@@ -89,11 +84,14 @@ const Profile = () => {
                 </Typography>
             )}
 
-            <Box sx={{ textAlign: 'center', mt: 4 }}>
-                <Button variant="contained" onClick={() => navigate('/')}>
+            <Stack spacing={2} sx={{ mt: 4 }} direction="column" alignItems="center">
+                <Button variant="contained" onClick={() => navigate('/preferences')}>
+                    See or Edit Preferences
+                </Button>
+                <Button variant="text" onClick={() => navigate('/')}>
                     Go Home
                 </Button>
-            </Box>
+            </Stack>
         </Container>
     );
 };
