@@ -4,6 +4,7 @@
 - [📘 Project Overview](#-project-overview)
 - [🌟 Key Features](#-key-features)
 - [📚 Documentation](#-documentation)
+-  [📊 Project Presentation](#-project-presentation)
 - [🎥 Demo](#-demo)
 - [🖼 UI Screenshots](#-ui-screenshots)
 - [⚙️ Local Development Setup](#️-local-development-setup)
@@ -74,6 +75,12 @@ It is built for extensibility, allowing future integration of explainable AI, ad
 * Built with React and Material-UI
 * Context-based state and notification management
 * Multiple tabs: Personalized feed, Trending, AI Recommendations
+
+## 📊 Project Presentation
+
+You can view or download the full SmartRec pitch deck here:
+
+👉 [Download SmartRec_Presentation.pptx](./assets/SmartRec_Presentation.pptx)
 
 ## 📚 Documentation
 
